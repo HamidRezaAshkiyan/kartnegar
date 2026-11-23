@@ -1,0 +1,1067 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>KartNegar (کارت‌نگار) — 100% On-Device Card, Sheba & National ID Scanner</title>
+  <meta name="description" content="100% On-Device Iranian Bank Card, Sheba (IBAN), and National ID Screenshot Scanner for Android. Zero INTERNET permission, zero telemetry, FOSS Tesseract 4 LSTM OCR." />
+  <meta property="og:title" content="KartNegar — 100% On-Device Card / Sheba / National ID Scanner" />
+  <meta property="og:description" content="Scan Iranian bank cards, Sheba (IR-IBAN), and National IDs from screenshots 100% offline. Zero permissions." />
+  <meta property="og:type" content="website" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@500;700&family=Vazirmatn:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+  <style>
+    :root {
+      --bg: #070d19;
+      --bg-elev: #0f172a;
+      --card: #131f35;
+      --card-hover: #1a2944;
+      --border: rgba(148, 163, 184, 0.16);
+      --text: #f8fafc;
+      --muted: #94a3b8;
+      --emerald: #10b981;
+      --emerald-bright: #34d399;
+      --emerald-dim: rgba(16, 185, 129, 0.14);
+      --sky: #38bdf8;
+      --amber: #fbbf24;
+      --red: #f87171;
+      --radius: 18px;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    html { scroll-behavior: smooth; }
+
+    body {
+      background:
+        radial-gradient(900px 500px at 15% -5%, rgba(16, 185, 129, 0.14), transparent 60%),
+        radial-gradient(700px 450px at 88% 8%, rgba(56, 189, 248, 0.10), transparent 60%),
+        var(--bg);
+      color: var(--text);
+      font-family: 'Inter', 'Vazirmatn', system-ui, -apple-system, sans-serif;
+      line-height: 1.6;
+      min-height: 100vh;
+    }
+
+    html[dir="rtl"] body {
+      font-family: 'Vazirmatn', 'Inter', system-ui, sans-serif;
+    }
+
+    a { color: inherit; text-decoration: none; }
+
+    .container {
+      max-width: 1120px;
+      margin: 0 auto;
+      padding: 0 22px;
+    }
+
+    /* Navbar */
+    header {
+      position: sticky;
+      top: 0;
+      z-index: 40;
+      backdrop-filter: blur(14px);
+      background: rgba(7, 13, 25, 0.78);
+      border-bottom: 1px solid var(--border);
+    }
+
+    .nav-inner {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      height: 68px;
+      gap: 16px;
+    }
+
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      font-weight: 800;
+      font-size: 1.15rem;
+      letter-spacing: -0.02em;
+    }
+
+    .brand-icon {
+      width: 38px;
+      height: 38px;
+      border-radius: 11px;
+      background: linear-gradient(135deg, #0f172a, #1e293b);
+      border: 1px solid rgba(52, 211, 153, 0.35);
+      display: grid;
+      place-items: center;
+      box-shadow: 0 6px 20px rgba(16, 185, 129, 0.18);
+    }
+
+    .nav-links {
+      display: flex;
+      align-items: center;
+      gap: 22px;
+      font-size: 0.92rem;
+      color: var(--muted);
+    }
+
+    .nav-links a:hover { color: var(--text); }
+
+    .nav-actions {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .lang-btn {
+      background: var(--card);
+      color: var(--text);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 7px 12px;
+      font-size: 0.85rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.2s;
+      font-family: inherit;
+    }
+
+    .lang-btn:hover {
+      border-color: var(--emerald-bright);
+      color: var(--emerald-bright);
+    }
+
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      padding: 12px 20px;
+      border-radius: 12px;
+      font-weight: 600;
+      font-size: 0.95rem;
+      cursor: pointer;
+      border: 1px solid transparent;
+      transition: transform 0.15s ease, box-shadow 0.2s ease, background 0.2s ease;
+    }
+
+    .btn:active { transform: translateY(1px); }
+
+    .btn-primary {
+      background: linear-gradient(135deg, #059669, #10b981);
+      color: #022c22;
+      font-weight: 700;
+      box-shadow: 0 8px 26px rgba(16, 185, 129, 0.28);
+    }
+
+    .btn-primary:hover {
+      box-shadow: 0 10px 32px rgba(16, 185, 129, 0.42);
+      filter: brightness(1.06);
+    }
+
+    .btn-secondary {
+      background: var(--card);
+      color: var(--text);
+      border-color: var(--border);
+    }
+
+    .btn-secondary:hover {
+      background: var(--card-hover);
+      border-color: rgba(148, 163, 184, 0.35);
+    }
+
+    /* Hero */
+    .hero {
+      padding: 72px 0 56px;
+    }
+
+    .hero-grid {
+      display: grid;
+      grid-template-columns: 1.15fr 0.85fr;
+      gap: 44px;
+      align-items: center;
+    }
+
+    .pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 6px 14px;
+      border-radius: 999px;
+      background: var(--emerald-dim);
+      border: 1px solid rgba(52, 211, 153, 0.3);
+      color: var(--emerald-bright);
+      font-size: 0.82rem;
+      font-weight: 600;
+      margin-bottom: 20px;
+    }
+
+    .dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: var(--emerald-bright);
+      box-shadow: 0 0 10px var(--emerald-bright);
+    }
+
+    h1 {
+      font-size: clamp(2.1rem, 4.2vw, 3.25rem);
+      font-weight: 800;
+      line-height: 1.15;
+      letter-spacing: -0.03em;
+      margin-bottom: 18px;
+    }
+
+    .gradient-text {
+      background: linear-gradient(135deg, #34d399, #38bdf8);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+
+    .hero-sub {
+      font-size: 1.08rem;
+      color: var(--muted);
+      margin-bottom: 28px;
+      max-width: 560px;
+    }
+
+    .hero-cta {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 12px;
+      margin-bottom: 24px;
+    }
+
+    .hero-meta {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 18px;
+      font-size: 0.84rem;
+      color: var(--muted);
+    }
+
+    .hero-meta span {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    /* Phone Mockup */
+    .phone-frame {
+      background: linear-gradient(180deg, #111c33, #0b1324);
+      border: 1px solid rgba(148, 163, 184, 0.22);
+      border-radius: 28px;
+      padding: 18px;
+      box-shadow: 0 28px 70px rgba(0, 0, 0, 0.55), 0 0 0 1px rgba(52, 211, 153, 0.08);
+    }
+
+    .phone-bar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding-bottom: 12px;
+      margin-bottom: 14px;
+      border-bottom: 1px solid var(--border);
+      font-size: 0.82rem;
+      color: var(--muted);
+    }
+
+    .phone-badge {
+      background: var(--emerald-dim);
+      color: var(--emerald-bright);
+      padding: 3px 9px;
+      border-radius: 999px;
+      font-size: 0.72rem;
+      font-weight: 600;
+    }
+
+    .mock-card {
+      background: rgba(30, 41, 59, 0.75);
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      padding: 13px 14px;
+      margin-bottom: 11px;
+    }
+
+    .mock-card:last-child { margin-bottom: 0; }
+
+    .mock-top {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 8px;
+      font-size: 0.76rem;
+    }
+
+    .mock-bank {
+      font-weight: 700;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .mock-check {
+      background: rgba(16, 185, 129, 0.16);
+      color: var(--emerald-bright);
+      padding: 2px 8px;
+      border-radius: 999px;
+      font-size: 0.7rem;
+      font-weight: 600;
+    }
+
+    .mono {
+      font-family: 'JetBrains Mono', ui-monospace, SFMono-Regular, monospace;
+      direction: ltr;
+      unicode-bidi: embed;
+    }
+
+    .mock-number {
+      background: rgba(15, 23, 42, 0.85);
+      border-radius: 9px;
+      padding: 9px 11px;
+      font-size: 0.92rem;
+      font-weight: 700;
+      letter-spacing: 0.04em;
+      color: #f8fafc;
+      text-align: left;
+    }
+
+    /* Sections */
+    section {
+      padding: 58px 0;
+    }
+
+    .section-head {
+      margin-bottom: 30px;
+    }
+
+    .section-kicker {
+      color: var(--emerald-bright);
+      font-size: 0.82rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      margin-bottom: 6px;
+    }
+
+    h2 {
+      font-size: clamp(1.55rem, 2.8vw, 2.15rem);
+      font-weight: 800;
+      letter-spacing: -0.02em;
+      margin-bottom: 8px;
+    }
+
+    .section-desc {
+      color: var(--muted);
+      max-width: 660px;
+    }
+
+    /* Cards grid */
+    .grid-4 {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 16px;
+    }
+
+    .grid-3 {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 18px;
+    }
+
+    .feature-card {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 22px;
+      transition: border-color 0.2s, transform 0.2s;
+    }
+
+    .feature-card:hover {
+      border-color: rgba(52, 211, 153, 0.38);
+      transform: translateY(-2px);
+    }
+
+    .icon-box {
+      width: 42px;
+      height: 42px;
+      border-radius: 12px;
+      background: var(--emerald-dim);
+      color: var(--emerald-bright);
+      display: grid;
+      place-items: center;
+      font-size: 1.2rem;
+      margin-bottom: 14px;
+    }
+
+    .feature-card h3 {
+      font-size: 1.02rem;
+      font-weight: 700;
+      margin-bottom: 8px;
+    }
+
+    .feature-card p {
+      font-size: 0.9rem;
+      color: var(--muted);
+    }
+
+    /* Interactive Validator */
+    .validator-box {
+      background: linear-gradient(180deg, #122038, #0e182b);
+      border: 1px solid rgba(52, 211, 153, 0.24);
+      border-radius: 22px;
+      padding: 26px;
+    }
+
+    .validator-input-row {
+      display: flex;
+      gap: 10px;
+      margin-bottom: 14px;
+    }
+
+    .validator-input {
+      flex: 1;
+      background: #081020;
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 14px 16px;
+      color: var(--text);
+      font-size: 1.02rem;
+      outline: none;
+      transition: border-color 0.2s;
+    }
+
+    .validator-input:focus {
+      border-color: var(--emerald-bright);
+    }
+
+    .sample-chips {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-bottom: 16px;
+    }
+
+    .chip {
+      background: rgba(148, 163, 184, 0.1);
+      color: var(--muted);
+      border: 1px solid var(--border);
+      border-radius: 999px;
+      padding: 6px 12px;
+      font-size: 0.8rem;
+      cursor: pointer;
+      font-family: inherit;
+      transition: all 0.18s;
+    }
+
+    .chip:hover {
+      border-color: var(--emerald-bright);
+      color: var(--emerald-bright);
+    }
+
+    .validator-result {
+      border-radius: 14px;
+      padding: 16px;
+      background: rgba(15, 23, 42, 0.7);
+      border: 1px solid var(--border);
+      display: none;
+    }
+
+    .validator-result.visible { display: block; }
+    .validator-result.valid {
+      border-color: rgba(52, 211, 153, 0.45);
+      background: rgba(6, 78, 59, 0.28);
+    }
+    .validator-result.invalid {
+      border-color: rgba(248, 113, 113, 0.45);
+      background: rgba(127, 29, 29, 0.22);
+    }
+
+    .result-row {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+    }
+
+    /* Code block */
+    .code-box {
+      background: #060b16;
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      padding: 16px 18px;
+      margin-top: 18px;
+      overflow-x: auto;
+      font-size: 0.88rem;
+      color: #e2e8f0;
+    }
+
+    .code-comment { color: #64748b; }
+    .code-pass { color: var(--emerald-bright); }
+
+    /* Banks pills */
+    .bank-grid {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 9px;
+    }
+
+    .bank-pill {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 999px;
+      padding: 6px 13px;
+      font-size: 0.83rem;
+      color: #cbd5e1;
+      display: inline-flex;
+      align-items: center;
+      gap: 7px;
+    }
+
+    .bank-dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+    }
+
+    footer {
+      border-top: 1px solid var(--border);
+      padding: 34px 0 48px;
+      color: var(--muted);
+      font-size: 0.88rem;
+    }
+
+    .footer-inner {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      justify-content: space-between;
+      gap: 16px;
+    }
+
+    .footer-links {
+      display: flex;
+      gap: 18px;
+    }
+
+    .footer-links a:hover { color: var(--emerald-bright); }
+
+    @media (max-width: 920px) {
+      .hero-grid { grid-template-columns: 1fr; }
+      .grid-4 { grid-template-columns: repeat(2, 1fr); }
+      .grid-3 { grid-template-columns: 1fr; }
+      .nav-links { display: none; }
+    }
+
+    @media (max-width: 560px) {
+      .grid-4 { grid-template-columns: 1fr; }
+      .validator-input-row { flex-direction: column; }
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <div class="container nav-inner">
+      <a href="#" class="brand">
+        <span class="brand-icon" aria-hidden="true">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none">
+            <path d="M4 8V5a1 1 0 0 1 1-1h3M16 4h3a1 1 0 0 1 1 1v3M4 16v3a1 1 0 0 0 1 1h3M16 20h3a1 1 0 0 0 1-1v-3" stroke="#34d399" stroke-width="2" stroke-linecap="round"/>
+            <rect x="6" y="7" width="12" height="10" rx="2" stroke="#f8fafc" stroke-width="1.6"/>
+            <path d="M3 12h18" stroke="#10b981" stroke-width="1.8" stroke-linecap="round"/>
+          </svg>
+        </span>
+        <span>KartNegar <span style="color: var(--emerald-bright); font-weight: 600;">کارت‌نگار</span></span>
+      </a>
+
+      <nav class="nav-links">
+        <a href="#features" data-i18n="nav_features">Features</a>
+        <a href="#demo" data-i18n="nav_demo">Live Validator</a>
+        <a href="#privacy" data-i18n="nav_privacy">Privacy Audit</a>
+        <a href="#banks" data-i18n="nav_banks">Banks</a>
+      </nav>
+
+      <div class="nav-actions">
+        <button id="langToggle" class="lang-btn" type="button">فارسی</button>
+        <a class="btn btn-primary" style="padding: 8px 14px; font-size: 0.86rem;" href="https://github.com/HamidRezaAshkiyan/kartnegar/releases/latest" target="_blank" rel="noopener" data-i18n="nav_download">Download APK</a>
+      </div>
+    </div>
+  </header>
+
+  <main>
+    <!-- Hero -->
+    <section class="hero">
+      <div class="container hero-grid">
+        <div>
+          <div class="pill">
+            <span class="dot"></span>
+            <span data-i18n="hero_pill">100% On-Device OCR • Zero Internet Permission</span>
+          </div>
+          <h1>
+            <span data-i18n="hero_title_1">Scan Iranian</span>
+            <span class="gradient-text" data-i18n="hero_title_2">Card, Sheba & National ID</span>
+            <span data-i18n="hero_title_3">Screenshots Offline</span>
+          </h1>
+          <p class="hero-sub" data-i18n="hero_sub">
+            Extract, validate, copy, and store 16-digit bank cards, 26-character Sheba (IR-IBAN), and 10-digit National IDs from any screenshot or photo — powered by bundled FOSS Tesseract 4 LSTM (Persian + English) with zero permissions.
+          </p>
+
+          <div class="hero-cta">
+            <a class="btn btn-primary" href="https://github.com/HamidRezaAshkiyan/kartnegar/releases/download/v1.0.0/kartnegar-v1.0.0.apk" data-i18n="cta_apk">
+              Download v1.0.0 APK
+            </a>
+            <a class="btn btn-secondary" href="https://github.com/HamidRezaAshkiyan/kartnegar" target="_blank" rel="noopener" data-i18n="cta_github">
+              Source on GitHub
+            </a>
+            <a class="btn btn-secondary" href="https://github.com/HamidRezaAshkiyan/kartnegar/releases/download/v1.0.0/kartnegar-v1.0.0.apk.sha256" data-i18n="cta_sha">
+              SHA-256
+            </a>
+          </div>
+
+          <div class="hero-meta">
+            <span>✓ Android 8.0+ (API 26)</span>
+            <span>✓ MIT Open Source</span>
+            <span data-i18n="meta_perms">✓ 0 Runtime Permissions</span>
+          </div>
+        </div>
+
+        <!-- Phone Preview -->
+        <div class="phone-frame" aria-label="App Preview">
+          <div class="phone-bar">
+            <strong>KartNegar • کارت‌نگار</strong>
+            <span class="phone-badge">✓ 3 Detected • 420 ms</span>
+          </div>
+
+          <div class="mock-card">
+            <div class="mock-top">
+              <span class="mock-bank" style="color: #f87171;">● Bank Melli • بانک ملی</span>
+              <span class="mock-check">✓ Luhn Mod-10</span>
+            </div>
+            <div class="mock-number mono">6037 9975 1234 5670</div>
+          </div>
+
+          <div class="mock-card">
+            <div class="mock-top">
+              <span class="mock-bank" style="color: #38bdf8;">● Bank Mellat • بانک ملت</span>
+              <span class="mock-check">✓ ISO 13616 Mod-97</span>
+            </div>
+            <div class="mock-number mono" style="font-size: 0.78rem;">IR84 0120 0000 0000 0123 4567 89</div>
+          </div>
+
+          <div class="mock-card">
+            <div class="mock-top">
+              <span class="mock-bank" style="color: #34d399;">● National ID • کد ملی</span>
+              <span class="mock-check">✓ Code Melli Mod-11</span>
+            </div>
+            <div class="mock-number mono">001-234567-9</div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Features -->
+    <section id="features">
+      <div class="container">
+        <div class="section-head">
+          <div class="section-kicker" data-i18n="feat_kicker">Engineered for Iranian Fintech</div>
+          <h2 data-i18n="feat_title">Built for real screenshots — dark mode, Persian digits & RTL</h2>
+          <p class="section-desc" data-i18n="feat_desc">
+            Standard OCR tools choke on Persian digits, dark-mode banking apps, and RTL card layouts. KartNegar handles all of them locally.
+          </p>
+        </div>
+
+        <div class="grid-3">
+          <div class="feature-card">
+            <div class="icon-box">⚡</div>
+            <h3 data-i18n="f1_title">Dual-Pass Persian + English OCR</h3>
+            <p data-i18n="f1_desc">Runs bundled Tesseract 4 LSTM (eng + fas) on-device to read both Latin (0-9, IR) and Persian (۰-۹) digits from banking apps, Telegram chats, and National ID cards.</p>
+          </div>
+          <div class="feature-card">
+            <div class="icon-box">🌙</div>
+            <h3 data-i18n="f2_title">Auto Dark-Mode Inversion</h3>
+            <p data-i18n="f2_desc">Automatically detects dark-mode screenshots by luminance and inverts them to dark-text-on-light before OCR, boosting recognition accuracy dramatically.</p>
+          </div>
+          <div class="feature-card">
+            <div class="icon-box">⇄</div>
+            <h3 data-i18n="f3_title">RTL Card Group Recovery</h3>
+            <p data-i18n="f3_desc">Automatically disambiguates 4-digit card groups reversed by RTL OCR layouts using Luhn Mod-10 combined with our 30+ Iranian bank BIN registry.</p>
+          </div>
+          <div class="feature-card">
+            <div class="icon-box">📤</div>
+            <h3 data-i18n="f4_title">Android Share Sheet Ready</h3>
+            <p data-i18n="f4_desc">Share any screenshot directly from Gallery, Telegram, WhatsApp, or your screenshot notification straight to KartNegar to scan immediately.</p>
+          </div>
+          <div class="feature-card">
+            <div class="icon-box">✓</div>
+            <h3 data-i18n="f5_title">Strict Mathematical Validation</h3>
+            <p data-i18n="f5_desc">Every extracted value is verified with Luhn Mod-10 (Cards), ISO 13616 Mod-97 (Sheba), or Code Melli Mod-11 (National ID) — eliminating OCR garbage.</p>
+          </div>
+          <div class="feature-card">
+            <div class="icon-box">🔒</div>
+            <h3 data-i18n="f6_title">Offline SQLite Vault</h3>
+            <p data-i18n="f6_desc">Save frequently used cards, Shebas, and National IDs with custom labels, search, filters, and one-tap copy — with cloud backup explicitly disabled.</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Live Client-Side Validator Demo -->
+    <section id="demo">
+      <div class="container">
+        <div class="section-head">
+          <div class="section-kicker" data-i18n="demo_kicker">Try It In Your Browser</div>
+          <h2 data-i18n="demo_title">Instant Offline Checksum & Bank Validator</h2>
+          <p class="section-desc" data-i18n="demo_desc">
+            Test the exact same validation logic used inside KartNegar. Runs 100% locally in your browser — nothing is sent anywhere.
+          </p>
+        </div>
+
+        <div class="validator-box">
+          <div class="validator-input-row">
+            <input
+              id="valInput"
+              class="validator-input mono"
+              type="text"
+              placeholder="6037 9975 ... / IR84 0120 ... / 0012345679"
+              autocomplete="off"
+              spellcheck="false"
+            />
+            <button id="valClear" class="btn btn-secondary" type="button" data-i18n="btn_clear">Clear</button>
+          </div>
+
+          <div class="sample-chips">
+            <button class="chip" type="button" data-sample="۶۰۳۷ ۹۹۷۵ ۱۲۳۴ ۵۶۷۰">Sample: Bank Melli Card (Persian)</button>
+            <button class="chip" type="button" data-sample="6219-8619-1234-5674">Sample: Blu Bank Card</button>
+            <button class="chip" type="button" data-sample="IR840120000000000123456789">Sample: Bank Mellat Sheba</button>
+            <button class="chip" type="button" data-sample="0012345679">Sample: National ID</button>
+          </div>
+
+          <div id="valResult" class="validator-result"></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Privacy Guarantee -->
+    <section id="privacy">
+      <div class="container">
+        <div class="section-head">
+          <div class="section-kicker" data-i18n="priv_kicker">Verifiable Privacy</div>
+          <h2 data-i18n="priv_title">Zero Permissions. Audited Automatically on Every Build.</h2>
+          <p class="section-desc" data-i18n="priv_desc">
+            You do not have to trust our word — every GitHub Actions build audits the compiled APK with aapt2 and fails if any network permission is present.
+          </p>
+        </div>
+
+        <div class="grid-4">
+          <div class="feature-card">
+            <div class="icon-box">🚫</div>
+            <h3 data-i18n="p1_title">No INTERNET</h3>
+            <p data-i18n="p1_desc">Neither INTERNET nor ACCESS_NETWORK_STATE exists in the APK manifest.</p>
+          </div>
+          <div class="feature-card">
+            <div class="icon-box">📷</div>
+            <h3 data-i18n="p2_title">No Storage / Camera</h3>
+            <p data-i18n="p2_desc">Uses Android Photo Picker and system Camera FileProvider — zero runtime prompts.</p>
+          </div>
+          <div class="feature-card">
+            <div class="icon-box">🧠</div>
+            <h3 data-i18n="p3_title">Zero Play Services</h3>
+            <p data-i18n="p3_desc">Pure FOSS Tesseract 4 LSTM bundled inside the APK. No ML Kit, no Firebase, no trackers.</p>
+          </div>
+          <div class="feature-card">
+            <div class="icon-box">☁️</div>
+            <h3 data-i18n="p4_title">No Cloud Backup</h3>
+            <p data-i18n="p4_desc">allowBackup="false" and data_extraction_rules.xml keep your vault strictly on-device.</p>
+          </div>
+        </div>
+
+        <pre class="code-box mono"><span class="code-comment"># Verify any release APK yourself using Android SDK aapt2:</span>
+$ aapt2 dump permissions kartnegar-v1.0.0.apk
+package: com.kartnegar.app
+<span class="code-pass"># Output: ZERO uses-permission entries!</span></pre>
+      </div>
+    </section>
+
+    <!-- Supported Banks -->
+    <section id="banks">
+      <div class="container">
+        <div class="section-head">
+          <div class="section-kicker" data-i18n="banks_kicker">30+ Iranian Banks Recognized</div>
+          <h2 data-i18n="banks_title">Instant Card BIN & Sheba Bank Detection</h2>
+        </div>
+        <div id="bankList" class="bank-grid"></div>
+      </div>
+    </section>
+  </main>
+
+  <footer>
+    <div class="container footer-inner">
+      <div>
+        <strong>KartNegar (کارت‌نگار)</strong> — MIT Licensed • Built by
+        <a href="https://github.com/HamidRezaAshkiyan" target="_blank" rel="noopener" style="color: var(--emerald-bright);">HamidReza Ashkiyan</a>
+      </div>
+      <div class="footer-links">
+        <a href="https://github.com/HamidRezaAshkiyan/kartnegar" target="_blank" rel="noopener">GitHub</a>
+        <a href="https://github.com/HamidRezaAshkiyan/kartnegar/releases" target="_blank" rel="noopener">Releases</a>
+        <a href="https://github.com/HamidRezaAshkiyan/kartnegar/blob/main/LICENSE" target="_blank" rel="noopener">MIT License</a>
+      </div>
+    </div>
+  </footer>
+
+  <script>
+    const BANKS = [
+      { code: "BLU", fa: "بلوبانک", en: "Blu Bank", color: "#0284c7", bins: ["62198619", "62198618"], shebas: [] },
+      { code: "MELLI", fa: "بانک ملی", en: "Bank Melli", color: "#ef4444", bins: ["603799", "170019"], shebas: ["017"] },
+      { code: "MELLAT", fa: "بانک ملت", en: "Bank Mellat", color: "#dc2626", bins: ["610433", "991975"], shebas: ["012"] },
+      { code: "SADERAT", fa: "بانک صادرات", en: "Bank Saderat", color: "#3b82f6", bins: ["603769", "903769"], shebas: ["019"] },
+      { code: "TEJARAT", fa: "بانک تجارت", en: "Bank Tejarat", color: "#2563eb", bins: ["627353", "585983"], shebas: ["018"] },
+      { code: "SEPAH", fa: "بانک سپه", en: "Bank Sepah", color: "#f59e0b", bins: ["589210", "639370", "639599", "627381", "505801", "636949"], shebas: ["015", "052", "063", "065", "073"] },
+      { code: "KESHAVARZI", fa: "بانک کشاورزی", en: "Keshavarzi", color: "#22c55e", bins: ["603770", "639217"], shebas: ["016"] },
+      { code: "MASKAN", fa: "بانک مسکن", en: "Bank Maskan", color: "#f97316", bins: ["628023"], shebas: ["014"] },
+      { code: "SAMAN", fa: "بانک سامان", en: "Saman Bank", color: "#0ea5e9", bins: ["621986"], shebas: ["056"] },
+      { code: "PASARGAD", fa: "بانک پاسارگاد", en: "Pasargad", color: "#eab308", bins: ["502229", "639347"], shebas: ["057"] },
+      { code: "PARSIAN", fa: "بانک پارسیان", en: "Parsian", color: "#ea580c", bins: ["622106", "639194", "627884"], shebas: ["054"] },
+      { code: "EN", fa: "اقتصاد نوین", en: "EN Bank", color: "#8b5cf6", bins: ["627412"], shebas: ["055"] },
+      { code: "SHAHR", fa: "بانک شهر", en: "Shahr Bank", color: "#f43f5e", bins: ["502806", "504706"], shebas: ["061"] },
+      { code: "AYANDEH", fa: "بانک آینده", en: "Ayandeh", color: "#b45309", bins: ["636214"], shebas: ["062"] },
+      { code: "DEY", fa: "بانک دی", en: "Bank Day", color: "#14b8a6", bins: ["502938"], shebas: ["066"] },
+      { code: "SINA", fa: "بانک سینا", en: "Sina Bank", color: "#3b82f6", bins: ["639346"], shebas: ["059"] },
+      { code: "KARAFARIN", fa: "کارآفرین", en: "Karafarin", color: "#10b981", bins: ["627488", "502910"], shebas: ["053"] },
+      { code: "SARMAYEH", fa: "بانک سرمایه", en: "Sarmayeh", color: "#6366f1", bins: ["639607"], shebas: ["058"] },
+      { code: "REFAH", fa: "بانک رفاه", en: "Refah Bank", color: "#0284c7", bins: ["589463"], shebas: ["013"] },
+      { code: "POST", fa: "پست بانک", en: "Post Bank", color: "#16a34a", bins: ["627760"], shebas: ["021"] },
+      { code: "MEHR_IRAN", fa: "مهر ایران", en: "Mehr Iran", color: "#059669", bins: ["606373"], shebas: ["060"] },
+      { code: "RESALAT", fa: "بانک رسالت", en: "Resalat", color: "#0ea5e9", bins: ["504172"], shebas: ["070"] },
+      { code: "GARDESHGARI", fa: "گردشگری", en: "Tourism", color: "#ef4444", bins: ["505416"], shebas: ["064"] },
+      { code: "IRAN_ZAMIN", fa: "ایران زمین", en: "Iran Zamin", color: "#a855f7", bins: ["505785"], shebas: ["069"] },
+      { code: "KHAVARMIANEH", fa: "خاورمیانه", en: "Middle East", color: "#d97706", bins: ["585947"], shebas: ["078"] },
+      { code: "MELAL", fa: "ملل", en: "Melal", color: "#2563eb", bins: ["606256"], shebas: ["075"] }
+    ];
+
+    const bankListEl = document.getElementById("bankList");
+    BANKS.forEach(b => {
+      const span = document.createElement("span");
+      span.className = "bank-pill";
+      span.innerHTML = `<span class="bank-dot" style="background:${b.color}"></span>${b.en} • ${b.fa}`;
+      bankListEl.appendChild(span);
+    });
+
+    function normalizeDigits(str) {
+      return str
+        .replace(/[۰-۹]/g, d => String(d.charCodeAt(0) - 0x06F0))
+        .replace(/[٠-٩]/g, d => String(d.charCodeAt(0) - 0x0660));
+    }
+
+    function isValidLuhn(digits) {
+      if (digits.length !== 16 || /^(\d)\1+$/.test(digits)) return false;
+      let sum = 0;
+      for (let i = 0; i < 16; i++) {
+        let d = digits.charCodeAt(i) - 48;
+        if (i % 2 === 0) { d *= 2; if (d > 9) d -= 9; }
+        sum += d;
+      }
+      return sum % 10 === 0;
+    }
+
+    function isValidSheba(clean) {
+      if (!/^IR\d{24}$/.test(clean)) return false;
+      const rearranged = clean.slice(4) + "1827" + clean.slice(2, 4);
+      let rem = 0;
+      for (const ch of rearranged) {
+        rem = (rem * 10 + (ch.charCodeAt(0) - 48)) % 97;
+      }
+      return rem === 1;
+    }
+
+    function isValidNationalId(digits) {
+      if (digits.length !== 10 || /^(\d)\1+$/.test(digits)) return false;
+      let sum = 0;
+      for (let i = 0; i < 9; i++) sum += (digits.charCodeAt(i) - 48) * (10 - i);
+      const r = sum % 11;
+      const c = digits.charCodeAt(9) - 48;
+      return r < 2 ? c === r : c === 11 - r;
+    }
+
+    function findBankByCard(digits) {
+      const sorted = BANKS.flatMap(b => b.bins.map(bin => ({ bin, bank: b }))).sort((a, b) => b.bin.length - a.bin.length);
+      return sorted.find(x => digits.startsWith(x.bin))?.bank || null;
+    }
+
+    function findBankBySheba(clean) {
+      const code = clean.slice(4, 7);
+      return BANKS.find(b => b.shebas.includes(code)) || null;
+    }
+
+    const valInput = document.getElementById("valInput");
+    const valResult = document.getElementById("valResult");
+
+    function runValidation() {
+      const raw = valInput.value.trim();
+      if (!raw) {
+        valResult.className = "validator-result";
+        valResult.innerHTML = "";
+        return;
+      }
+
+      const clean = normalizeDigits(raw).toUpperCase().replace(/[^A-Z0-9]/g, "");
+      const digits = clean.replace(/\D/g, "");
+      let valid = false, title = "", formatted = clean, bank = null;
+
+      if (clean.startsWith("IR") || clean.length === 24) {
+        const cand = clean.startsWith("IR") ? clean : "IR" + clean;
+        valid = isValidSheba(cand);
+        bank = findBankBySheba(cand);
+        formatted = cand.length === 26
+          ? `${cand.slice(0,4)} ${cand.slice(4,8)} ${cand.slice(8,12)} ${cand.slice(12,16)} ${cand.slice(16,20)} ${cand.slice(20,24)} ${cand.slice(24,26)}`
+          : cand;
+        title = valid ? "✓ Valid Sheba (ISO 13616 Mod-97)" : "✕ Invalid Sheba (needs IR + 24 valid digits)";
+      } else if (digits.length === 16) {
+        valid = isValidLuhn(digits);
+        bank = findBankByCard(digits);
+        formatted = digits.replace(/(\d{4})(?=\d)/g, "$1 ");
+        title = valid ? "✓ Valid Bank Card (Luhn Mod-10)" : "✕ Invalid Bank Card (Luhn checksum failed)";
+      } else if (digits.length === 10) {
+        valid = isValidNationalId(digits);
+        formatted = `${digits.slice(0,3)}-${digits.slice(3,9)}-${digits.slice(9)}`;
+        title = valid ? "✓ Valid Iranian National ID (Mod-11)" : "✕ Invalid National ID (Mod-11 checksum failed)";
+      } else {
+        title = `Detected ${digits.length} digits — enter 10 (National ID), 16 (Card), or IR + 24 (Sheba)`;
+      }
+
+      valResult.className = `validator-result visible ${valid ? "valid" : "invalid"}`;
+      valResult.innerHTML = `
+        <div class="result-row">
+          <div>
+            <div style="font-weight:700; color:${valid ? "#34d399" : "#f87171"};">${title}</div>
+            ${bank ? `<div style="font-size:0.9rem; margin-top:4px; color:#e2e8f0;">${bank.en} • ${bank.fa}</div>` : ""}
+          </div>
+          ${valid ? `<div class="mono" style="font-weight:700; font-size:1.05rem;">${formatted}</div>` : ""}
+        </div>
+      `;
+    }
+
+    valInput.addEventListener("input", runValidation);
+    document.getElementById("valClear").addEventListener("click", () => {
+      valInput.value = "";
+      runValidation();
+      valInput.focus();
+    });
+    document.querySelectorAll(".chip").forEach(btn => {
+      btn.addEventListener("click", () => {
+        valInput.value = btn.dataset.sample;
+        runValidation();
+      });
+    });
+
+    // Bilingual EN / FA toggle
+    const I18N = {
+      en: {
+        nav_features: "Features",
+        nav_demo: "Live Validator",
+        nav_privacy: "Privacy Audit",
+        nav_banks: "Banks",
+        nav_download: "Download APK",
+        hero_pill: "100% On-Device OCR • Zero Internet Permission",
+        hero_title_1: "Scan Iranian",
+        hero_title_2: "Card, Sheba & National ID",
+        hero_title_3: "Screenshots Offline",
+        hero_sub: "Extract, validate, copy, and store 16-digit bank cards, 26-character Sheba (IR-IBAN), and 10-digit National IDs from any screenshot or photo — powered by bundled FOSS Tesseract 4 LSTM (Persian + English) with zero permissions.",
+        cta_apk: "Download v1.0.0 APK",
+        cta_github: "Source on GitHub",
+        cta_sha: "SHA-256",
+        meta_perms: "✓ 0 Runtime Permissions",
+        feat_kicker: "Engineered for Iranian Fintech",
+        feat_title: "Built for real screenshots — dark mode, Persian digits & RTL",
+        feat_desc: "Standard OCR tools choke on Persian digits, dark-mode banking apps, and RTL card layouts. KartNegar handles all of them locally.",
+        f1_title: "Dual-Pass Persian + English OCR",
+        f1_desc: "Runs bundled Tesseract 4 LSTM (eng + fas) on-device to read both Latin (0-9, IR) and Persian (۰-۹) digits from banking apps, Telegram chats, and National ID cards.",
+        f2_title: "Auto Dark-Mode Inversion",
+        f2_desc: "Automatically detects dark-mode screenshots by luminance and inverts them to dark-text-on-light before OCR, boosting recognition accuracy dramatically.",
+        f3_title: "RTL Card Group Recovery",
+        f3_desc: "Automatically disambiguates 4-digit card groups reversed by RTL OCR layouts using Luhn Mod-10 combined with our 30+ Iranian bank BIN registry.",
+        f4_title: "Android Share Sheet Ready",
+        f4_desc: "Share any screenshot directly from Gallery, Telegram, WhatsApp, or your screenshot notification straight to KartNegar to scan immediately.",
+        f5_title: "Strict Mathematical Validation",
+        f5_desc: "Every extracted value is verified with Luhn Mod-10 (Cards), ISO 13616 Mod-97 (Sheba), or Code Melli Mod-11 (National ID) — eliminating OCR garbage.",
+        f6_title: "Offline SQLite Vault",
+        f6_desc: "Save frequently used cards, Shebas, and National IDs with custom labels, search, filters, and one-tap copy — with cloud backup explicitly disabled.",
+        demo_kicker: "Try It In Your Browser",
+        demo_title: "Instant Offline Checksum & Bank Validator",
+        demo_desc: "Test the exact same validation logic used inside KartNegar. Runs 100% locally in your browser — nothing is sent anywhere.",
+        btn_clear: "Clear",
+        priv_kicker: "Verifiable Privacy",
+        priv_title: "Zero Permissions. Audited Automatically on Every Build.",
+        priv_desc: "You do not have to trust our word — every GitHub Actions build audits the compiled APK with aapt2 and fails if any network permission is present.",
+        p1_title: "No INTERNET",
+        p1_desc: "Neither INTERNET nor ACCESS_NETWORK_STATE exists in the APK manifest.",
+        p2_title: "No Storage / Camera",
+        p2_desc: "Uses Android Photo Picker and system Camera FileProvider — zero runtime prompts.",
+        p3_title: "Zero Play Services",
+        p3_desc: "Pure FOSS Tesseract 4 LSTM bundled inside the APK. No ML Kit, no Firebase, no trackers.",
+        p4_title: "No Cloud Backup",
+        p4_desc: "allowBackup=\"false\" and data_extraction_rules.xml keep your vault strictly on-device.",
+        banks_kicker: "30+ Iranian Banks Recognized",
+        banks_title: "Instant Card BIN & Sheba Bank Detection"
+      },
+      fa: {
+        nav_features: "امکانات",
+        nav_demo: "اعتبارسنجی زنده",
+        nav_privacy: "تضمین حریم خصوصی",
+        nav_banks: "بانک‌ها",
+        nav_download: "دانلود APK",
+        hero_pill: "۱۰۰٪ آفلاین روی گوشی • بدون دسترسی اینترنت",
+        hero_title_1: "اسکنر آفلاین",
+        hero_title_2: "شماره کارت، شبا و کد ملی",
+        hero_title_3: "از روی اسکرین‌شات",
+        hero_sub: "استخراج، اعتبارسنجی، کپی و ذخیره شماره کارت ۱۶ رقمی، شبا ۲۶ کاراکتری و کد ملی ۱۰ رقمی از روی هر اسکرین‌شات یا عکس — با موتور متن‌باز Tesseract 4 (فارسی + انگلیسی) و بدون حتی یک مجوز.",
+        cta_apk: "دانلود نسخه v1.0.0",
+        cta_github: "سورس‌کد در گیت‌هاب",
+        cta_sha: "فایل SHA-256",
+        meta_perms: "✓ صفر مجوز دسترسی",
+        feat_kicker: "ساخته‌شده برای سیستم بانکی ایران",
+        feat_title: "بهینه برای اسکرین‌شات‌های واقعی — حالت تاریک، ارقام فارسی و RTL",
+        feat_desc: "ابزارهای معمول OCR با ارقام فارسی، اپ‌های بانکی دارک‌مود و چیدمان راست‌به‌چپ مشکل دارند. کارت‌نگار همه را کاملاً آفلاین حل می‌کند.",
+        f1_title: "OCR دو مرحله‌ای فارسی + انگلیسی",
+        f1_desc: "اجرای آفلاین Tesseract 4 LSTM برای خواندن همزمان ارقام انگلیسی (0-9 و IR) و فارسی (۰-۹) از اسکرین‌شات اپ‌های بانکی، تلگرام و کارت ملی.",
+        f2_title: "تشخیص و معکوس‌سازی خودکار دارک‌مود",
+        f2_desc: "اسکرین‌شات‌های حالت تاریک را به‌صورت خودکار تشخیص داده و قبل از OCR معکوس می‌کند تا دقت تشخیص ارقام به حداکثر برسد.",
+        f3_title: "اصلاح خودکار کارت‌های برعکس‌شده در RTL",
+        f3_desc: "گروه‌های ۴ رقمی کارت که در متون راست‌به‌چپ جابه‌جا می‌شوند را با ترکیب الگوریتم Luhn و پیش‌شماره ۳۰+ بانک ایرانی اصلاح می‌کند.",
+        f4_title: "یکپارچه با منوی اشتراک‌گذاری اندروید",
+        f4_desc: "هر اسکرین‌شاتی را مستقیماً از گالری، تلگرام یا واتساپ به «کارت‌نگار» Share کنید تا بلافاصله اسکن شود.",
+        f5_title: "اعتبارسنجی ریاضی دقیق",
+        f5_desc: "تمام خروجی‌ها با الگوریتم Luhn (کارت)، ISO 13616 Mod-97 (شبا) و Mod-11 (کد ملی) بررسی می‌شوند تا هیچ عدد اشتباهی نمایش داده نشود.",
+        f6_title: "صندوقچه آفلاین (SQLite)",
+        f6_desc: "ذخیره کارت‌ها، شباها و کد ملی‌های پرکاربرد با برچسب دلخواه، جستجو و کپی سریع — بدون بکاپ ابری.",
+        demo_kicker: "تست زنده در مرورگر",
+        demo_title: "اعتبارسنجی آنی شماره کارت، شبا و کد ملی",
+        demo_desc: "همان منطق اعتبارسنجی داخل اپلیکیشن را همین‌جا تست کنید. کاملاً آفلاین در مرورگر شما اجرا می‌شود.",
+        btn_clear: "پاک کردن",
+        priv_kicker: "حریم خصوصی قابل راستی‌آزمایی",
+        priv_title: "صفر مجوز. ممیزی خودکار در هر بیلد گیت‌هاب.",
+        priv_desc: "نیازی به اعتماد کورکورانه نیست — هر بیلد GitHub Actions فایل APK را با aapt2 بررسی می‌کند و در صورت وجود هرگونه مجوز اینترنت خطا می‌دهد.",
+        p1_title: "بدون دسترسی INTERNET",
+        p1_desc: "هیچ‌یک از مجوزهای INTERNET یا ACCESS_NETWORK_STATE در مانیفست وجود ندارد.",
+        p2_title: "بدون دسترسی حافظه و دوربین",
+        p2_desc: "با استفاده از Photo Picker اندروید و FileProvider دوربین، هیچ مجوز زمان اجرایی درخواست نمی‌شود.",
+        p3_title: "بدون سرویس‌های گوگل",
+        p3_desc: "فقط Tesseract 4 متن‌باز داخل APK. بدون ML Kit، بدون Firebase و بدون هیچ ردیاب.",
+        p4_title: "بدون بکاپ ابری",
+        p4_desc: "با allowBackup=\"false\" اطلاعات صندوقچه محلی شما هرگز به فضای ابری منتقل نمی‌شود.",
+        banks_kicker: "پشتیبانی از بیش از ۳۰ بانک ایرانی",
+        banks_title: "تشخیص خودکار بانک از شماره کارت و شبا"
+      }
+    };
+
+    let currentLang = "en";
+    const langBtn = document.getElementById("langToggle");
+    langBtn.addEventListener("click", () => {
+      currentLang = currentLang === "en" ? "fa" : "en";
+      document.documentElement.lang = currentLang;
+      document.documentElement.dir = currentLang === "fa" ? "rtl" : "ltr";
+      langBtn.textContent = currentLang === "en" ? "فارسی" : "English";
+      document.querySelectorAll("[data-i18n]").forEach(el => {
+        const key = el.getAttribute("data-i18n");
+        if (I18N[currentLang][key]) el.textContent = I18N[currentLang][key];
+      });
+    });
+  </script>
+</body>
+</html>

@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="utf-8"?>
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="108dp"
+    android:height="108dp"
+    android:viewportWidth="108"
+    android:viewportHeight="108">
+    <!-- Scanner corner brackets -->
+    <path
+        android:strokeColor="#34D399"
+        android:strokeWidth="4"
+        android:strokeLineCap="round"
+        android:strokeLineJoin="round"
+        android:pathData="M26,38 L26,28 Q26,26 28,26 L38,26" />
+    <path
+        android:strokeColor="#34D399"
+        android:strokeWidth="4"
+        android:strokeLineCap="round"
+        android:strokeLineJoin="round"
+        android:pathData="M70,26 L80,26 Q82,26 82,28 L82,38" />
+    <path
+        android:strokeColor="#34D399"
+        android:strokeWidth="4"
+        android:strokeLineCap="round"
+        android:strokeLineJoin="round"
+        android:pathData="M26,70 L26,80 Q26,82 28,82 L38,82" />
+    <path
+        android:strokeColor="#34D399"
+        android:strokeWidth="4"
+        android:strokeLineCap="round"
+        android:strokeLineJoin="round"
+        android:pathData="M70,82 L80,82 Q82,82 82,80 L82,70" />
+    <!-- Card outline inside scanner -->
+    <path
+        android:fillColor="#1E293B"
+        android:strokeColor="#F8FAFC"
+        android:strokeWidth="2.5"
+        android:pathData="M34,37 L74,37 Q77,37 77,40 L77,68 Q77,71 74,71 L34,71 Q31,71 31,68 L31,40 Q31,37 34,37 Z" />
+    <!-- Card chip -->
+    <path
+        android:fillColor="#FBBF24"
+        android:pathData="M37,44 L46,44 Q47,44 47,45 L47,51 Q47,52 46,52 L37,52 Q36,52 36,51 L36,45 Q36,44 37,44 Z" />
+    <!-- Scan laser line -->
+    <path
+        android:strokeColor="#10B981"
+        android:strokeWidth="2.5"
+        android:strokeLineCap="round"
+        android:pathData="M23,54 L85,54" />
+    <!-- Digit bars -->
+    <path
+        android:strokeColor="#CBD5E1"
+        android:strokeWidth="2.5"
+        android:strokeLineCap="round"
+        android:pathData="M37,62 L44,62 M48,62 L55,62 M59,62 L66,62 M70,62 L72,62" />
+</vector>

@@ -164,10 +164,17 @@ object FinancialExtractor {
             val forward = g1 + g2 + g3 + g4
             val reversedGroups = g4 + g3 + g2 + g1
 
+            val forwardValid = FinancialValidators.isValidCardNumber(forward)
+            val forwardHasBank = forwardValid && IranianBankRegistry.findByCardNumber(forward) != null
+            val reversedValid = FinancialValidators.isValidCardNumber(reversedGroups)
+            val reversedHasBank = reversedValid && IranianBankRegistry.findByCardNumber(reversedGroups) != null
+
+            // Note: reversing 4-digit groups preserves Luhn digit parity, so prefer the orientation
+            // that matches a known Iranian bank BIN when only one orientation does.
             val chosen = when {
-                FinancialValidators.isValidCardNumber(forward) -> forward
-                FinancialValidators.isValidCardNumber(reversedGroups) &&
-                    IranianBankRegistry.findByCardNumber(reversedGroups) != null -> reversedGroups
+                forwardHasBank -> forward
+                reversedHasBank -> reversedGroups
+                forwardValid -> forward
                 else -> null
             }
 
